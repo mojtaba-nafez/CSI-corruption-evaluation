@@ -270,7 +270,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
 
 
 def get_superclass_list(dataset):
-    if dataset == 'cifar10':
+    if dataset == 'cifar10' or dataset=='cifar10-corruption':
         return CIFAR10_SUPERCLASS
     elif dataset == 'cifar100':
         return CIFAR100_SUPERCLASS

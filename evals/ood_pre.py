@@ -189,7 +189,7 @@ def _get_features(P, model, loader, interp=False, imagenet=False, simclr_aug=Non
                 x_t = torch.cat([P.shift_trans(hflip(x), k) for k in range(P.K_shift)])
             else:
                 x_t = x # No shifting: SimCLR
-            print("x_t: ", x_t)
+            print("x_t: ", x_t.shape)
             x_t = simclr_aug(x_t)
 
             # compute augmented features

@@ -10,6 +10,8 @@ def parse_args(default=False):
                         choices=['cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
     parser.add_argument('--one_class_idx', help='None: multi-class, Not None: one-class',
                         default=None, type=int)
+    parser.add_argument('--cifar_corruption_data', help='',
+                        default="./CIFAR-10-C/defocus_blur.npy", type=str)
     parser.add_argument('--model', help='Model',
                         choices=['resnet18', 'resnet18_imagenet'], default="resnet18", type=str)
     parser.add_argument('--mode', help='Training mode',

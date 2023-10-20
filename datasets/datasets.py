@@ -37,6 +37,32 @@ CIFAR100_SUPERCLASS = [
 ]
 
 
+
+import torch
+from torchvision import transforms
+from torch.utils.data import Dataset, DataLoader
+import numpy as np
+from PIL import Image
+
+class CIFAR_CORRUCPION(Dataset):
+    def __init__(self, transform=None, normal_idx = [0], cifar_corruption_label = 'CIFAR-10-C/labels.npy', cifar_corruption_data = './CIFAR-10-C/defocus_blur.npy'):
+        self.labels_10 = np.load(cifar_corruption_label)
+        self.labels_10 = self.labels_10[40000:]
+        self.data = np.load(cifar_corruption_data)
+        self.data = self.data[40000:]
+        self.transform = transform
+       
+    def __getitem__(self, index):
+        x = self.data[index]
+        y = self.labels_10[index]
+        if self.transform:
+            x = Image.fromarray((x * 255).astype(np.uint8))
+            x = self.transform(x)    
+        return x, y
+    
+    def __len__(self):
+        return len(self.data)
+
 class MultiDataTransform(object):
     def __init__(self, transform):
         self.transform1 = transform
@@ -143,7 +169,17 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         n_classes = 100
         train_set = datasets.CIFAR100(DATA_PATH, train=True, download=download, transform=train_transform)
         test_set = datasets.CIFAR100(DATA_PATH, train=False, download=download, transform=test_transform)
-
+    elif dataset=='cifar10-corruption':
+        n_classes = 10
+        transform = transforms.Compose([
+                transforms.Resize(32),
+                transforms.ToTensor(),
+        ])
+        test_set = CIFAR_CORRUCPION(transform=transform, cifar_corruption_data=P.cifar_corruption_data)
+        train_set = datasets.CIFAR10(DATA_PATH, train=True, download=download, transform=transform)
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
+    
     elif dataset == 'svhn':
         assert test_only and image_size is not None
         test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=test_transform)

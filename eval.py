@@ -1,6 +1,9 @@
 from common.eval import *
 
 model.eval()
+print(P)
+print("test_loader:", len(test_loader))
+print("ood_test_loader:", ood_test_loader)
 
 if P.mode == 'test_acc':
     from evals import test_classifier

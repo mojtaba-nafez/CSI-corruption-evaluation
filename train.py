@@ -55,3 +55,4 @@ for epoch in range(start_epoch, P.epochs + 1):
 
         logger.scalar_summary('eval/best_error', best, epoch)
         logger.log('[Epoch %3d] [Test %5.2f] [Best %5.2f]' % (epoch, error, best))
+

@@ -1,17 +1,16 @@
 from common.eval import *
 
 model.eval()
-print(P)
-print("test_loader:", len(test_loader))
-print("ood_test_loader:", ood_test_loader)
 
 if P.mode == 'test_acc':
     from evals import test_classifier
+
     with torch.no_grad():
         error = test_classifier(P, model, test_loader, 0, logger=None)
 
 elif P.mode == 'test_marginalized_acc':
     from evals import test_classifier
+
     with torch.no_grad():
         error = test_classifier(P, model, test_loader, 0, marginal=True, logger=None)
 
@@ -24,9 +23,20 @@ elif P.mode in ['ood', 'ood_pre']:
     with torch.no_grad():
         auroc_dict = eval_ood_detection(P, model, test_loader, ood_test_loader, P.ood_score,
                                         train_loader=train_loader, simclr_aug=simclr_aug)
-
+        # {'one_class_1': {'CSI': 0.728107},
+        #  'one_class_2': {'CSI': 0.9557279999999999},
+        #  'one_class_3': {'CSI': 0.9823710000000001},
+        #  'one_class_4': {'CSI': 0.945057},
+        #  'one_class_5': {'CSI': 0.9775539999999999},
+        #  'one_class_6': {'CSI': 0.9593869999999998},
+        #  'one_class_7': {'CSI': 0.895971},
+        #  'one_class_8': {'CSI': 0.7812140000000001},
+        #  'one_class_9': {'CSI': 0.812334},
+        #  'one_class_mean': {'CSI': 0.8930803333333334}}
+    # ood_score="CSI"
     if P.one_class_idx is not None:
         mean_dict = dict()
+        # P.ood_score: ['CSI']
         for ood_score in P.ood_score:
             mean = 0
             for ood in auroc_dict.keys():
@@ -52,5 +62,3 @@ elif P.mode in ['ood', 'ood_pre']:
 
 else:
     raise NotImplementedError()
-
-

@@ -123,7 +123,7 @@ def train(P, epoch, model, criterion, optimizer, scheduler, loader, logger=None,
     log_('[DONE] [Time %.3f] [Data %.3f] [LossC %f] [LossR %f]' %
          (batch_time.average, data_time.average,
           losses['cls'].average, losses['rot'].average))
-
+    
     if logger is not None:
         logger.scalar_summary('train/loss_cls', losses['cls'].average, epoch)
         logger.scalar_summary('train/loss_rot', losses['rot'].average, epoch)

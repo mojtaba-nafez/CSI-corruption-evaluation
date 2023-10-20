@@ -40,7 +40,7 @@ else:
 P.ood_layer = P.ood_layer[0]
 
 ### Initialize dataset ###
-train_set, test_set, image_size, n_classes = get_dataset(P, dataset=P.dataset)
+train_set, test_set, image_size, n_classes = get_dataset(P, dataset=P.dataset, download=True)
 P.image_size = image_size
 P.n_classes = n_classes
 
@@ -82,7 +82,7 @@ for ood in P.ood_dataset:
         ood_test_set = get_subclass_dataset(full_test_set, classes=cls_list[ood])
         ood = f'one_class_{ood}'  # change save name
     else:
-        ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size)
+        ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, download=True)
 
     if P.multi_gpu:
         ood_sampler = DistributedSampler(ood_test_set, num_replicas=P.n_gpus, rank=P.local_rank)
@@ -92,7 +92,10 @@ for ood in P.ood_dataset:
 
 ### Initialize model ###
 
+# color_jitter, color_gray, resize_crop,
 simclr_aug = C.get_simclr_augmentation(P, image_size=P.image_size).to(device)
+# P.shift_trans -->  Rotation 90 degree (input: number of time rotate, output: rotated)
+# K_shift: 4
 P.shift_trans, P.K_shift = C.get_shift_module(P, eval=True)
 P.shift_trans = P.shift_trans.to(device)
 
@@ -105,9 +108,10 @@ if P.optimizer == 'sgd':
     optimizer = optim.SGD(model.parameters(), lr=P.lr_init, momentum=0.9, weight_decay=P.weight_decay)
     lr_decay_gamma = 0.1
 elif P.optimizer == 'lars':
-    from torchlars import LARS
+    # from torchlars import LARS
     base_optimizer = optim.SGD(model.parameters(), lr=P.lr_init, momentum=0.9, weight_decay=P.weight_decay)
-    optimizer = LARS(base_optimizer, eps=1e-8, trust_coef=0.001)
+    # optimizer = LARS(base_optimizer, eps=1e-8, trust_coef=0.001)
+    optimizer = base_optimizer
     lr_decay_gamma = 0.1
 else:
     raise NotImplementedError()

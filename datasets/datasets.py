@@ -7,9 +7,8 @@ from torchvision import datasets, transforms
 
 from utils.utils import set_random_seed
 
-DATA_PATH = '~/data/'
-IMAGENET_PATH = '~/data/ImageNet'
-
+DATA_PATH = './data/'
+IMAGENET_PATH = './data/ImageNet'
 
 CIFAR10_SUPERCLASS = list(range(10))  # one class
 IMAGENET_SUPERCLASS = list(range(30))  # one class
@@ -104,7 +103,6 @@ def get_subset_with_len(dataset, length, shuffle=False):
 
 
 def get_transform_imagenet():
-
     train_transform = transforms.Compose([
         transforms.Resize(256),
         transforms.RandomResizedCrop(224),
@@ -155,7 +153,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         test_dir = os.path.join(DATA_PATH, 'LSUN_resize')
         test_set = datasets.ImageFolder(test_dir, transform=test_transform)
 
-    elif dataset == 'lsun_fix':
+    elif dataset == 'lsun_pil' or dataset == 'lsun_fix':
         assert test_only and image_size is not None
         test_dir = os.path.join(DATA_PATH, 'LSUN_fix')
         test_set = datasets.ImageFolder(test_dir, transform=test_transform)
@@ -165,7 +163,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         test_dir = os.path.join(DATA_PATH, 'Imagenet_resize')
         test_set = datasets.ImageFolder(test_dir, transform=test_transform)
 
-    elif dataset == 'imagenet_fix':
+    elif dataset == 'imagenet_pil' or dataset == 'imagenet_fix':
         assert test_only and image_size is not None
         test_dir = os.path.join(DATA_PATH, 'Imagenet_fix')
         test_set = datasets.ImageFolder(test_dir, transform=test_transform)
@@ -260,7 +258,6 @@ def get_subclass_dataset(dataset, classes):
 
 
 def get_simclr_eval_transform_imagenet(sample_num, resize_factor, resize_fix):
-
     resize_scale = (resize_factor, 1.0)  # resize scaling factor
     if resize_fix:  # if resize_fix is True, use same scale
         resize_scale = (resize_factor, resize_factor)
@@ -281,5 +278,3 @@ def get_simclr_eval_transform_imagenet(sample_num, resize_factor, resize_fix):
     transform = MultiDataTransformList(transform, clean_trasform, sample_num)
 
     return transform, transform
-
-

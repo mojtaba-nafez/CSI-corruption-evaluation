@@ -62,7 +62,7 @@ for ood in P.ood_dataset:
         ood_test_set = get_subclass_dataset(full_test_set, classes=cls_list[ood])
         ood = f'one_class_{ood}'  # change save name
     else:
-        ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, eval=ood_eval)
+        ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, eval=ood_eval, download=True)
 
     ood_test_loader[ood] = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
 
@@ -77,5 +77,6 @@ model = C.get_shift_classifer(model, P.K_shift).to(device)
 criterion = nn.CrossEntropyLoss().to(device)
 
 if P.load_path is not None:
-    checkpoint = torch.load(P.load_path)
+    print("Load wieth", P.load_path)
+    checkpoint = torch.load(P.load_path, map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint, strict=not P.no_strict)

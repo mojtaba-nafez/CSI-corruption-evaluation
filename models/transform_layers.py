@@ -99,7 +99,8 @@ class RandomResizedCropLayer(nn.Module):
         output = F.grid_sample(inputs, grid, padding_mode='reflection', **kwargs)
 
         if self.size is not None:
-            output = F.adaptive_avg_pool2d(output, self.size)
+            output = F.adaptive_avg_pool2d(output, (self.size[0], self.size[1]))
+            # output = F.adaptive_avg_pool2d(output, self.size)
 
         return output
 
@@ -277,20 +278,20 @@ class HorizontalFlipLayer(nn.Module):
             grayscale or 3 for RGB
         """
         super(HorizontalFlipLayer, self).__init__()
-
+        # torch.eye(2, 3): diagna matrix
+        #    tensor([[1., 0., 0.],
+        #         [0., 1., 0.]])
         _eye = torch.eye(2, 3)
         self.register_buffer('_eye', _eye)
 
     def forward(self, inputs):
         _device = inputs.device
-
         N = inputs.size(0)
         _theta = self._eye.repeat(N, 1, 1)
         r_sign = torch.bernoulli(torch.ones(N, device=_device) * 0.5) * 2 - 1
         _theta[:, 0, 0] = r_sign
         grid = F.affine_grid(_theta, inputs.size(), **kwargs).to(_device)
         inputs = F.grid_sample(inputs, grid, padding_mode='reflection', **kwargs)
-
         return inputs
 
 

@@ -5,6 +5,8 @@ import torch.nn as nn
 class BaseModel(nn.Module, metaclass=ABCMeta):
     def __init__(self, last_dim, num_classes=10, simclr_dim=128):
         super(BaseModel, self).__init__()
+        # BaseModel info: last_dim512, num_classes=10, simclr_dim=128
+        print(f"BaseModel info: last_dim={last_dim}, num_classes={num_classes}, simclr_dim={simclr_dim} ")
         self.linear = nn.Linear(last_dim, num_classes)
         self.simclr_layer = nn.Sequential(
             nn.Linear(last_dim, last_dim),
@@ -19,11 +21,11 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
         pass
 
     def forward(self, inputs, penultimate=False, simclr=False, shift=False, joint=False):
+        # inputs = torch.Size([256, 3, 32, 32])
         _aux = {}
         _return_aux = False
-
+        # features=torch.Size([256, 512])
         features = self.penultimate(inputs)
-
         output = self.linear(features)
 
         if penultimate:
@@ -32,16 +34,15 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
 
         if simclr:
             _return_aux = True
+            # torch.Size([256, 128])
             _aux['simclr'] = self.simclr_layer(features)
-
         if shift:
             _return_aux = True
+            # torch.Size([256, 4])  (change 2 to 4 in get_shift_classifer function)
             _aux['shift'] = self.shift_cls_layer(features)
-
         if joint:
             _return_aux = True
             _aux['joint'] = self.joint_distribution_layer(features)
-
         if _return_aux:
             return output, _aux
 

@@ -6,10 +6,9 @@ import models.transform_layers as TL
 
 
 def get_simclr_augmentation(P, image_size):
-
-    # parameter for resizecrop
-    resize_scale = (P.resize_factor, 1.0) # resize scaling factor
-    if P.resize_fix: # if resize_fix is True, use same scale
+    # parameter for resize crop
+    resize_scale = (P.resize_factor, 1.0)  # resize scaling factor
+    if P.resize_fix:  # if resize_fix is True, use same scale
         resize_scale = (P.resize_factor, P.resize_factor)
 
     # Align augmentation
@@ -18,7 +17,7 @@ def get_simclr_augmentation(P, image_size):
     resize_crop = TL.RandomResizedCropLayer(scale=resize_scale, size=image_size)
 
     # Transform define #
-    if P.dataset == 'imagenet': # Using RandomResizedCrop at PIL transform
+    if P.dataset == 'imagenet':  # Using RandomResizedCrop at PIL transform
         transform = nn.Sequential(
             color_jitter,
             color_gray,
@@ -34,7 +33,6 @@ def get_simclr_augmentation(P, image_size):
 
 
 def get_shift_module(P, eval=False):
-
     if P.shift_trans_type == 'rotation':
         shift_transform = TL.Rotation()
         K_shift = 4
@@ -46,13 +44,12 @@ def get_shift_module(P, eval=False):
         K_shift = 1
 
     if not eval and not ('sup' in P.mode):
-        assert P.batch_size == int(128/K_shift)
+        assert P.batch_size == int(128 / K_shift)
 
     return shift_transform, K_shift
 
 
 def get_shift_classifer(model, K_shift):
-
     model.shift_cls_layer = nn.Linear(model.last_dim, K_shift)
 
     return model
@@ -73,4 +70,3 @@ def get_classifier(mode, n_classes=10):
         raise NotImplementedError()
 
     return classifier
-

@@ -40,25 +40,33 @@ def train(P, epoch, model, criterion, optimizer, scheduler, loader, logger=None,
 
         ### SimCLR loss ###
         if P.dataset != 'imagenet':
+            # batch_size=32
             batch_size = images.size(0)
             images = images.to(device)
+            # images1(torch.Size([64, 3, 32, 32])), images2(torch.Size([64, 3, 32, 32]))
+            # images2=(torch.Size([8, 3, 32, 32])), images.repeat(2, 1, 1, 1)=torch.Size([8, 3, 32, 32])
             images1, images2 = hflip(images.repeat(2, 1, 1, 1)).chunk(2)  # hflip
         else:
             batch_size = images[0].size(0)
             images1, images2 = images[0].to(device), images[1].to(device)
         labels = labels.to(device)
-
         images1 = torch.cat([P.shift_trans(images1, k) for k in range(P.K_shift)])
         images2 = torch.cat([P.shift_trans(images2, k) for k in range(P.K_shift)])
         shift_labels = torch.cat([torch.ones_like(labels) * k for k in range(P.K_shift)], 0)  # B -> 4B
+        # print(images2.shape, images1.shape, labels.shape, shift_labels.shape)
         shift_labels = shift_labels.repeat(2)
 
         images_pair = torch.cat([images1, images2], dim=0)  # 8B
         images_pair = simclr_aug(images_pair)  # transform
-
+        # images_pair=torch.Size([256, 3, 32, 32])
+        # outputs_aux['simclr']=torch.Size([256, 128])
+        # outputs_aux['shift']=torch.Size([256, 4])
         _, outputs_aux = model(images_pair, simclr=True, penultimate=True, shift=True)
+        # outputs=outputs_aux['simclr']
 
+        # simclr: torch.Size([256, 128])
         simclr = normalize(outputs_aux['simclr'])  # normalize
+        # sim_matrix: torch.Size([256, 256])
         sim_matrix = get_similarity_matrix(simclr, multi_gpu=P.multi_gpu)
         loss_sim = NT_xent(sim_matrix, temperature=0.5) * P.sim_lambda
 
@@ -78,12 +86,16 @@ def train(P, epoch, model, criterion, optimizer, scheduler, loader, logger=None,
 
         ### Post-processing stuffs ###
         simclr_norm = outputs_aux['simclr'].norm(dim=1).mean()
-
+        # outputs_aux['penultimate'] = torch.Size([256, 512])
+        # batch_size=32
         penul_1 = outputs_aux['penultimate'][:batch_size]
         penul_2 = outputs_aux['penultimate'][P.K_shift * batch_size: (P.K_shift + 1) * batch_size]
+        # outputs_aux['penultimate']=torch.Size([64, 512])
         outputs_aux['penultimate'] = torch.cat([penul_1, penul_2])  # only use original rotation
 
         ### Linear evaluation ###
+        # linear: Linear(in_features=512, out_features=10, bias=True)
+        # labels: all 0 [0, 0, ..., 0] ==> torch.Size([32])
         outputs_linear_eval = linear(outputs_aux['penultimate'].detach())
         loss_linear = criterion(outputs_linear_eval, labels.repeat(2))
 

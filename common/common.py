@@ -7,13 +7,13 @@ def parse_args(default=False):
     parser = ArgumentParser(description='Pytorch implementation of CSI')
 
     parser.add_argument('--dataset', help='Dataset',
-                        choices=['cifar10', 'cifar100', 'imagenet'], type=str)
+                        choices=['cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
     parser.add_argument('--one_class_idx', help='None: multi-class, Not None: one-class',
                         default=None, type=int)
     parser.add_argument('--model', help='Model',
-                        choices=['resnet18', 'resnet18_imagenet'], type=str)
+                        choices=['resnet18', 'resnet18_imagenet'], default="resnet18", type=str)
     parser.add_argument('--mode', help='Training mode',
-                        default='simclr', type=str)
+                        default='ood_pre', type=str)
     parser.add_argument('--simclr_dim', help='Dimension of simclr layer',
                         default=128, type=int)
 
@@ -25,7 +25,7 @@ def parse_args(default=False):
     parser.add_argument('--resume_path', help='Path to the resume checkpoint',
                         default=None, type=str)
     parser.add_argument('--load_path', help='Path to the loading checkpoint',
-                        default=None, type=str)
+                        default="./cifar10_oc_class0.model", type=str)
     parser.add_argument("--no_strict", help='Do not strictly load state_dicts',
                         action='store_true')
     parser.add_argument('--suffix', help='Suffix for the log dir',
@@ -86,4 +86,6 @@ def parse_args(default=False):
     if default:
         return parser.parse_args('')  # empty string
     else:
-        return parser.parse_args()
+        # return parser.parse_args()
+        args, unknown = parser.parse_known_args()
+        return args

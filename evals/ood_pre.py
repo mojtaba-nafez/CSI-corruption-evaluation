@@ -190,7 +190,7 @@ def _get_features(P, model, loader, interp=False, imagenet=False, simclr_aug=Non
             else:
                 x_t = x # No shifting: SimCLR
             # print("x_t: ", x_t.shape)
-            # x_t = simclr_aug(x_t)
+            x_t = simclr_aug(x_t)
 
             # compute augmented features
             with torch.no_grad():

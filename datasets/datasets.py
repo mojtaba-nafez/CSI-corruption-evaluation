@@ -163,6 +163,11 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         n_classes = 10
         train_set = datasets.CIFAR10(DATA_PATH, train=True, download=download, transform=train_transform)
         test_set = datasets.CIFAR10(DATA_PATH, train=False, download=download, transform=test_transform)
+    elif dataset == 'svhn':
+            image_size = (32, 32, 3)
+            n_classes = 10
+            train_set = datasets.SVHN(DATA_PATH, split='train', download=download, transform=test_transform)
+            test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=test_transform)
 
     elif dataset == 'cifar100':
         image_size = (32, 32, 3)
@@ -270,7 +275,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
 
 
 def get_superclass_list(dataset):
-    if dataset == 'cifar10' or dataset=='cifar10-corruption':
+    if dataset == 'cifar10' or dataset=='cifar10-corruption' or dataset=='svhn':
         return CIFAR10_SUPERCLASS
     elif dataset == 'cifar100':
         return CIFAR100_SUPERCLASS

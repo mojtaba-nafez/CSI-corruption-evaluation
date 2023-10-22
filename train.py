@@ -37,14 +37,9 @@ for epoch in range(start_epoch, P.epochs + 1):
     train(P, epoch, model, criterion, optimizer, scheduler_warmup, train_loader, logger=logger, **kwargs)
 
     model.eval()
-
-    if epoch % P.save_step == 0 and P.local_rank == 0:
-        if P.multi_gpu:
-            save_states = model.module.state_dict()
-        else:
-            save_states = model.state_dict()
-        save_checkpoint(epoch, save_states, optimizer.state_dict(), logger.logdir)
-        save_linear_checkpoint(linear_optim.state_dict(), logger.logdir)
+    save_states = model.state_dict()
+    save_checkpoint(epoch, save_states, optimizer.state_dict(), logger.logdir)
+    save_linear_checkpoint(linear_optim.state_dict(), logger.logdir)
 
     if epoch % P.error_step == 0 and ('sup' in P.mode):
         error = test_classifier(P, model, test_loader, epoch, logger=logger)

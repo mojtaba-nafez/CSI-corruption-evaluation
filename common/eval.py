@@ -10,7 +10,12 @@ from datasets import get_dataset, get_superclass_list, get_subclass_dataset
 
 P = parse_args()
 
+
+### Set torch device ###
+
+
 def get_loader_unique_label(loader):
+    print('here is get_loader_unique_label')
     try:
         unique_labels = set()
         for _, labels in loader:
@@ -20,9 +25,6 @@ def get_loader_unique_label(loader):
         print("can not compute unique loader!")
         unique_labels = []
     return unique_labels
-
-### Set torch device ###
-
 P.n_gpus = torch.cuda.device_count()
 assert P.n_gpus <= 1  # no multi GPU
 P.multi_gpu = False

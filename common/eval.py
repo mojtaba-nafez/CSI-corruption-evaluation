@@ -10,6 +10,17 @@ from datasets import get_dataset, get_superclass_list, get_subclass_dataset
 
 P = parse_args()
 
+def get_loader_unique_label(loader):
+    try:
+        unique_labels = set()
+        for _, labels in loader:
+            unique_labels.update(labels.tolist())
+        unique_labels = sorted(list(unique_labels))
+    except:
+        print("can not compute unique loader!")
+        unique_labels = []
+    return unique_labels
+
 ### Set torch device ###
 
 P.n_gpus = torch.cuda.device_count()
@@ -48,6 +59,9 @@ print("full_test_set", len(full_test_set))
 train_loader = DataLoader(train_set, shuffle=True, batch_size=P.batch_size, **kwargs)
 test_loader = DataLoader(test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
 
+print("Unique labels(test_loader):", get_loader_unique_label(test_loader))
+print("Unique labels(train_loader):", get_loader_unique_label(train_loader))
+
 if P.ood_dataset is None:
     if P.one_class_idx is not None:
         P.ood_dataset = list(range(P.n_superclasses))
@@ -72,7 +86,7 @@ for ood in P.ood_dataset:
     print("ood_test_set", len(ood_test_set))
 
     ood_test_loader[ood] = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
-
+    print("Unique labels(ood_test_loader):", get_loader_unique_label(ood_test_loader[ood]))
 ### Initialize model ###
 
 simclr_aug = C.get_simclr_augmentation(P, image_size=P.image_size).to(device)

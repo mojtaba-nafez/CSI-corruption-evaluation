@@ -52,9 +52,12 @@ if P.one_class_idx is not None:
     full_test_set = deepcopy(test_set)  # test set of full classes
     train_set = get_subclass_dataset(train_set, classes=cls_list)
     test_set = get_subclass_dataset(test_set, classes=cls_list)
-    
+
     cls_list = get_superclass_list(P.dataset)
 kwargs = {'pin_memory': False, 'num_workers': 4}
+print("test_set", len(test_set))
+print("train_set", len(train_set))
+print("full_test_set", len(full_test_set))
 
 if P.multi_gpu:
     train_sampler = DistributedSampler(train_set, num_replicas=P.n_gpus, rank=P.local_rank)
@@ -87,6 +90,7 @@ for ood in P.ood_dataset:
         ood = f'one_class_{ood}'  # change save name
     else:
         ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, download=True)
+    print("ood_test_set", len(ood_test_set))
 
     if P.multi_gpu:
         ood_sampler = DistributedSampler(ood_test_set, num_replicas=P.n_gpus, rank=P.local_rank)

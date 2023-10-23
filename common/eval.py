@@ -32,13 +32,18 @@ P.n_classes = n_classes
 
 if P.one_class_idx is not None:
     cls_list = get_superclass_list(P.dataset)
+    del cls_list[P.one_class_idx]
     P.n_superclasses = len(cls_list)
 
     full_test_set = deepcopy(test_set)  # test set of full classes
-    train_set = get_subclass_dataset(train_set, classes=cls_list[P.one_class_idx])
-    test_set = get_subclass_dataset(test_set, classes=cls_list[P.one_class_idx])
+    train_set = get_subclass_dataset(train_set, classes=cls_list)
+    test_set = get_subclass_dataset(test_set, classes=cls_list)
 
+    cls_list = get_superclass_list(P.dataset)
 kwargs = {'pin_memory': False, 'num_workers': 4}
+print("test_set", len(test_set))
+print("train_set", len(train_set))
+print("full_test_set", len(full_test_set))
 
 train_loader = DataLoader(train_set, shuffle=True, batch_size=P.batch_size, **kwargs)
 test_loader = DataLoader(test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
@@ -52,6 +57,7 @@ if P.ood_dataset is None:
     elif P.dataset == 'imagenet':
         P.ood_dataset = ['cub', 'stanford_dogs', 'flowers102', 'places365', 'food_101', 'caltech_256', 'dtd', 'pets']
 
+P.ood_dataset = [P.one_class_idx]
 ood_test_loader = dict()
 for ood in P.ood_dataset:
     if ood == 'interp':
@@ -63,6 +69,7 @@ for ood in P.ood_dataset:
         ood = f'one_class_{ood}'  # change save name
     else:
         ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, eval=ood_eval, download=True)
+    print("ood_test_set", len(ood_test_set))
 
     ood_test_loader[ood] = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
 

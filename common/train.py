@@ -13,6 +13,17 @@ from utils.utils import load_checkpoint
 
 P = parse_args()
 
+def get_loader_unique_label(loader):
+    print('here is get_loader_unique_label')
+    try:
+        unique_labels = set()
+        for _, labels in loader:
+            unique_labels.update(labels.tolist())
+        unique_labels = sorted(list(unique_labels))
+    except:
+        print("can not compute unique loader!")
+        unique_labels = []
+    return unique_labels
 ### Set torch device ###
 
 if torch.cuda.is_available():
@@ -68,6 +79,9 @@ else:
     train_loader = DataLoader(train_set, shuffle=True, batch_size=P.batch_size, **kwargs)
     test_loader = DataLoader(test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
 
+print("Unique labels(test_loader):", get_loader_unique_label(test_loader))
+print("Unique labels(train_loader):", get_loader_unique_label(train_loader))
+
 if P.ood_dataset is None:
     if P.one_class_idx is not None:
         P.ood_dataset = list(range(P.n_superclasses))
@@ -91,12 +105,14 @@ for ood in P.ood_dataset:
     else:
         ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, download=True)
     print("ood_test_set", len(ood_test_set))
+    
 
     if P.multi_gpu:
         ood_sampler = DistributedSampler(ood_test_set, num_replicas=P.n_gpus, rank=P.local_rank)
         ood_test_loader[ood] = DataLoader(ood_test_set, sampler=ood_sampler, batch_size=P.test_batch_size, **kwargs)
     else:
         ood_test_loader[ood] = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
+    print("Unique labels(ood_test_loader):", get_loader_unique_label(ood_test_loader[ood]))
 
 ### Initialize model ###
 

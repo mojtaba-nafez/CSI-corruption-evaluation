@@ -44,12 +44,28 @@ from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from PIL import Image
 
+
+def sparse2coarse(targets):
+    coarse_labels = np.array(
+        [4,1,14, 8, 0, 6, 7, 7, 18, 3, 3,
+         14, 9, 18, 7, 11, 3, 9, 7, 11, 6, 11, 5,
+         10, 7, 6, 13, 15, 3, 15, 0, 11, 1, 10,
+         12, 14, 16, 9, 11, 5, 5, 19, 8, 8, 15,
+         13, 14, 17, 18, 10, 16, 4, 17, 4, 2, 0,
+         17, 4, 18, 17, 10, 3, 2, 12, 12, 16, 12,
+         1, 9, 19, 2, 10, 0, 1, 16, 12, 9, 13,
+         15, 13, 16, 19, 2, 4, 6, 19, 5, 5, 8,
+         19, 18, 1, 2, 15, 6, 0, 17, 8, 14, 13,])
+    return coarse_labels[targets]
+
 class CIFAR_CORRUCPION(Dataset):
     def __init__(self, transform=None, normal_idx = [0], cifar_corruption_label = 'CIFAR-10-C/labels.npy', cifar_corruption_data = './CIFAR-10-C/defocus_blur.npy'):
         self.labels_10 = np.load(cifar_corruption_label)
-        self.labels_10 = self.labels_10[40000:]
+        self.labels_10 = self.labels_10[:10000]
+        if cifar_corruption_label == 'CIFAR-100-C/labels.npy':
+            self.labels_10 = sparse2coarse(self.labels_10)
         self.data = np.load(cifar_corruption_data)
-        self.data = self.data[40000:]
+        self.data = self.data[:10000]
         self.transform = transform
        
     def __getitem__(self, index):
@@ -182,6 +198,20 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         ])
         test_set = CIFAR_CORRUCPION(transform=transform, cifar_corruption_data=P.cifar_corruption_data)
         train_set = datasets.CIFAR10(DATA_PATH, train=True, download=download, transform=transform)
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
+    
+    elif dataset=='cifar100-corruption':
+        n_classes = 100
+        transform = transforms.Compose([
+                transforms.Resize(32),
+                transforms.ToTensor(),
+        ])
+        test_set = CIFAR_CORRUCPION(transform=transform, cifar_corruption_label='CIFAR-100-C/labels.npy', cifar_corruption_data=P.cifar_corruption_data)
+        train_set = datasets.CIFAR100(DATA_PATH, train=True, download=download, transform=transform)
+        
+        train_set.targets = sparse2coarse(train_set.targets)
+
         print("train_set shapes: ", train_set[0][0].shape)
         print("test_set shapes: ", test_set[0][0].shape)
     

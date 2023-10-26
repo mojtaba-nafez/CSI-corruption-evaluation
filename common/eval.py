@@ -45,7 +45,7 @@ P.n_classes = n_classes
 
 if P.one_class_idx is not None:
     cls_list = get_superclass_list(P.dataset)
-    del cls_list[P.one_class_idx]
+    # del cls_list[P.one_class_idx]
     P.n_superclasses = len(cls_list)
 
     full_test_set = deepcopy(test_set)  # test set of full classes
@@ -73,7 +73,7 @@ if P.ood_dataset is None:
     elif P.dataset == 'imagenet':
         P.ood_dataset = ['cub', 'stanford_dogs', 'flowers102', 'places365', 'food_101', 'caltech_256', 'dtd', 'pets']
 
-P.ood_dataset = [P.one_class_idx]
+# P.ood_dataset = [P.one_class_idx]
 ood_test_loader = dict()
 for ood in P.ood_dataset:
     if ood == 'interp':
@@ -81,7 +81,8 @@ for ood in P.ood_dataset:
         continue
 
     if P.one_class_idx is not None:
-        ood_test_set = get_subclass_dataset(full_test_set, classes=ood)
+        ood_test_set = get_subclass_dataset(full_test_set, classes=cls_list[ood])
+        # ood_test_set = get_subclass_dataset(full_test_set, classes=ood)
         ood = f'one_class_{ood}'  # change save name
     else:
         ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, eval=ood_eval, download=True)

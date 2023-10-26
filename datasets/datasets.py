@@ -11,6 +11,8 @@ DATA_PATH = './data/'
 IMAGENET_PATH = './data/ImageNet'
 
 CIFAR10_SUPERCLASS = list(range(10))  # one class
+CIFAR100_CORUPTION_SUPERCLASS = list(range(20))  # one class
+
 IMAGENET_SUPERCLASS = list(range(30))  # one class
 
 CIFAR100_SUPERCLASS = [
@@ -307,8 +309,10 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
 def get_superclass_list(dataset):
     if dataset == 'cifar10' or dataset=='cifar10-corruption' or dataset=='svhn':
         return CIFAR10_SUPERCLASS
-    elif dataset == 'cifar100' or dataset =="cifar100-corruption":
+    elif dataset == 'cifar100':
         return CIFAR100_SUPERCLASS
+    elif dataset == "cifar100-corruption":
+        return CIFAR100_CORUPTION_SUPERCLASS
     elif dataset == 'imagenet':
         return IMAGENET_SUPERCLASS
     else:

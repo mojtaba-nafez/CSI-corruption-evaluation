@@ -55,16 +55,21 @@ train_set, test_set, image_size, n_classes = get_dataset(P, dataset=P.dataset, d
 P.image_size = image_size
 P.n_classes = n_classes
 
+
 if P.one_class_idx is not None:
     cls_list = get_superclass_list(P.dataset)
-    del cls_list[P.one_class_idx]
+    # del cls_list[P.one_class_idx]
     P.n_superclasses = len(cls_list)
 
     full_test_set = deepcopy(test_set)  # test set of full classes
-    train_set = get_subclass_dataset(train_set, classes=cls_list)
-    test_set = get_subclass_dataset(test_set, classes=cls_list)
-
-    cls_list = get_superclass_list(P.dataset)
+    # train_set = get_subclass_dataset(train_set, classes=cls_list)
+    # test_set = get_subclass_dataset(test_set, classes=cls_list)
+    
+    train_set = get_subclass_dataset(train_set, classes=cls_list[P.one_class_idx])
+    test_set = get_subclass_dataset(test_set, classes=cls_list[P.one_class_idx])
+    
+    # cls_list = get_superclass_list(P.dataset)
+    
 kwargs = {'pin_memory': False, 'num_workers': 4}
 print("test_set", len(test_set))
 print("train_set", len(train_set))
@@ -91,27 +96,22 @@ if P.ood_dataset is None:
     elif P.dataset == 'imagenet':
         P.ood_dataset = ['cub', 'stanford_dogs', 'flowers102']
 
+# P.ood_dataset = [P.one_class_idx]
 ood_test_loader = dict()
-
-P.ood_dataset = [P.one_class_idx]
 for ood in P.ood_dataset:
     if ood == 'interp':
         ood_test_loader[ood] = None  # dummy loader
         continue
 
     if P.one_class_idx is not None:
-        ood_test_set = get_subclass_dataset(full_test_set, classes=ood)
+        ood_test_set = get_subclass_dataset(full_test_set, classes=cls_list[ood])
+        # ood_test_set = get_subclass_dataset(full_test_set, classes=ood)
         ood = f'one_class_{ood}'  # change save name
     else:
-        ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, download=True)
+        ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, eval=ood_eval, download=True)
     print("ood_test_set", len(ood_test_set))
-    
 
-    if P.multi_gpu:
-        ood_sampler = DistributedSampler(ood_test_set, num_replicas=P.n_gpus, rank=P.local_rank)
-        ood_test_loader[ood] = DataLoader(ood_test_set, sampler=ood_sampler, batch_size=P.test_batch_size, **kwargs)
-    else:
-        ood_test_loader[ood] = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
+    ood_test_loader[ood] = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
     print("Unique labels(ood_test_loader):", get_loader_unique_label(ood_test_loader[ood]))
 
 ### Initialize model ###

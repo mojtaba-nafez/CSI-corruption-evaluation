@@ -49,10 +49,13 @@ if P.one_class_idx is not None:
     P.n_superclasses = len(cls_list)
 
     full_test_set = deepcopy(test_set)  # test set of full classes
-    train_set = get_subclass_dataset(train_set, classes=cls_list)
-    test_set = get_subclass_dataset(test_set, classes=cls_list)
-
-    cls_list = get_superclass_list(P.dataset)
+    # train_set = get_subclass_dataset(train_set, classes=cls_list)
+    # test_set = get_subclass_dataset(test_set, classes=cls_list)
+    
+    train_set = get_subclass_dataset(train_set, classes=cls_list[P.one_class_idx])
+    test_set = get_subclass_dataset(test_set, classes=cls_list[P.one_class_idx])
+    
+    # cls_list = get_superclass_list(P.dataset)
 kwargs = {'pin_memory': False, 'num_workers': 4}
 print("test_set", len(test_set))
 print("train_set", len(train_set))

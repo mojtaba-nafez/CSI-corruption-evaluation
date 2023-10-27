@@ -55,6 +55,8 @@ train_set, test_set, image_size, n_classes = get_dataset(P, dataset=P.dataset, d
 P.image_size = image_size
 P.n_classes = n_classes
 
+print("test_set 1", len(test_set))
+print("train_set 1", len(train_set))
 
 if P.one_class_idx is not None:
     cls_list = get_superclass_list(P.dataset)
@@ -64,7 +66,8 @@ if P.one_class_idx is not None:
     full_test_set = deepcopy(test_set)  # test set of full classes
     # train_set = get_subclass_dataset(train_set, classes=cls_list)
     # test_set = get_subclass_dataset(test_set, classes=cls_list)
-    
+    print("cls_list", cls_list)
+    print("P.one_class_idx", P.one_class_idx)
     train_set = get_subclass_dataset(train_set, classes=cls_list[P.one_class_idx])
     test_set = get_subclass_dataset(test_set, classes=cls_list[P.one_class_idx])
     

@@ -187,7 +187,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
             train_set = datasets.SVHN(DATA_PATH, split='train', download=download, transform=test_transform)
             test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=test_transform)
     elif dataset == 'svhn-10':
-        # image_size = (32, 32, 3)
+        image_size = (32, 32, 3)
         n_classes = 10
         transform = transforms.Compose([
             transforms.Resize((image_size[0], image_size[1])),
@@ -199,7 +199,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         print("test_set shapes: ", test_set[0][0].shape)
     
     elif dataset == 'svhn-10-corruption':
-
+        image_size = (32, 32, 3)
         def gaussian_noise(image, mean=P.noise_mean, std = P.noise_std, noise_scale = P.noise_scale):
             image = image + (torch.randn(image.size()) * std + mean)*noise_scale
             return image

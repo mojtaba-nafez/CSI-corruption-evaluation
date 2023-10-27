@@ -186,6 +186,39 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
             n_classes = 10
             train_set = datasets.SVHN(DATA_PATH, split='train', download=download, transform=test_transform)
             test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=test_transform)
+    elif dataset == 'svhn-10':
+        # image_size = (32, 32, 3)
+        n_classes = 10
+        transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.ToTensor(),
+        ])
+        train_set = datasets.SVHN(DATA_PATH, split='train', download=download, transform=transform)
+        test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=transform)
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
+    
+    elif dataset == 'svhn-10-corruption':
+
+        def gaussian_noise(image, mean=P.noise_mean, std = P.noise_std, noise_scale = P.noise_scale):
+            image = image + (torch.randn(image.size()) * std + mean)*noise_scale
+            return image
+
+        n_classes = 10
+        train_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.ToTensor(),
+        ])
+        test_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.ToTensor(),
+            transforms.Lambda(gaussian_noise)
+        ])
+
+        train_set = datasets.SVHN(DATA_PATH, split='train', download=download, transform=train_transform)
+        test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=test_transform)
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
 
     elif dataset == 'cifar100':
         image_size = (32, 32, 3)
@@ -307,7 +340,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
 
 
 def get_superclass_list(dataset):
-    if dataset == 'cifar10' or dataset=='cifar10-corruption' or dataset=='svhn':
+    if dataset == 'cifar10' or dataset=='cifar10-corruption' or dataset=='svhn' or dataset=='svhn-10-corruption' or dataset=='svhn-10':
         return CIFAR10_SUPERCLASS
     elif dataset == 'cifar100':
         return CIFAR100_SUPERCLASS

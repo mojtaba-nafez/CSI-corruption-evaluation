@@ -7,7 +7,15 @@ def parse_args(default=False):
     parser = ArgumentParser(description='Pytorch implementation of CSI')
 
     parser.add_argument('--dataset', help='Dataset',
-                        choices=['cifar100-corruption', 'svhn', 'cifar10-corruption', 'cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
+                        choices=['svhn-10-corruption', 'svhn-10', 'cifar100-corruption', 'svhn', 'cifar10-corruption', 'cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
+    
+    parser.add_argument('--noise_mean', help='',
+                        default=0.0, type=float)
+    parser.add_argument('--noise_std', help='',
+                        default=1.0, type=float)
+    parser.add_argument('--noise_scale', help='',
+                        default=0.031372549, type=float)
+
     parser.add_argument('--one_class_idx', help='None: multi-class, Not None: one-class',
                         default=None, type=int)
     parser.add_argument('--cifar_corruption_data', help='',

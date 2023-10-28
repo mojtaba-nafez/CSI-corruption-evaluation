@@ -231,7 +231,14 @@ def eval_ood_detection(P, model, id_loader, ood_loaders, ood_scores, train_loade
 
     print(f'weight_sim:\t' + '\t'.join(map('{:.4f}'.format, P.weight_sim)))
     print(f'weight_shi:\t' + '\t'.join(map('{:.4f}'.format, P.weight_shi)))
-
+    
+    ## Preprocessing is Ended
+    P, device, model, simclr_aug
+    score_model = DifferentiableScoreModel(P, device, model, simclr_aug)
+    P.attack = {'PGD': PGD(score_model, steps=P.steps, eps=P.eps, alpha=P.alpha),
+                'FGSM': FGSM(score_model, eps=P.eps)
+                }[P.desired_attack]
+                
     print('Pre-compute features...')
     # feats_id["shift"].shape = torch.Size([1000, 40, 4])
     # feats_id["simclr"] = torch.Size([1000, 40, 128])

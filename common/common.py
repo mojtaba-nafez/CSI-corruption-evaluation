@@ -8,7 +8,19 @@ def parse_args(default=False):
 
     parser.add_argument('--dataset', help='Dataset',
                         choices=['svhn-10-corruption', 'svhn-10', 'cifar100-corruption', 'svhn', 'cifar10-corruption', 'cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
+    parser.add_argument('--desired_attack', help='desired_attack',
+                        choices=['PGD', 'FGSM'],
+                        default="PGD", type=str)
+    parser.add_argument("--in_attack", help='save ood score for plotting histogram',
+                        default=False, action='store_true')
+    parser.add_argument("--out_attack", help='save ood score for plotting histogram',
+                        default=False, action='store_true')
+    parser.add_argument('--eps', type=float, default=0.0314,
+                        help='maximum perturbation of adversaries (8/255 for cifar-10)')
     
+    parser.add_argument('--steps', type=int, default=10,
+                        help='maximum iteration when generating adversarial examples')
+
     parser.add_argument('--noise_mean', help='',
                         default=0.0, type=float)
     parser.add_argument('--noise_std', help='',

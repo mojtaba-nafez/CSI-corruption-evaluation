@@ -9,6 +9,7 @@ import numpy as np
 import torch
 from matplotlib import pyplot as plt
 from tensorboardX import SummaryWriter
+from sklearn.metrics import roc_auc_score
 
 
 class Logger(object):
@@ -123,6 +124,11 @@ def load_checkpoint(logdir, mode='last'):
         return None, None, None
 
     return model_state, optim_state, cfg
+
+def get_auroc(scores_id, scores_ood):
+    scores = np.concatenate([scores_id, scores_ood])
+    labels = np.concatenate([np.ones_like(scores_id), np.zeros_like(scores_ood)])
+    return roc_auc_score(labels, scores)
 
 
 def save_checkpoint(epoch, model_state, optim_state, logdir):

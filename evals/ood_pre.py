@@ -238,7 +238,7 @@ def eval_ood_detection(P, model, id_loader, ood_loaders, ood_scores, train_loade
     P.attack = {'PGD': PGD(score_model, steps=P.steps, eps=P.eps, alpha=P.alpha),
                 'FGSM': FGSM(score_model, eps=P.eps)
                 }[P.desired_attack]
-                
+
     print('Pre-compute features...')
     # feats_id["shift"].shape = torch.Size([1000, 40, 4])
     # feats_id["simclr"] = torch.Size([1000, 40, 128])
@@ -330,8 +330,8 @@ def get_features(P, data_name, model, loader,
     # left= ['simclr', 'shift']
     left = [layer for layer in layers if layer not in feats_dict.keys()]
     if len(left) > 0:
-        _feats_dict = _get_features(P, model, loader, interp, P.dataset == 'imagenet',
-                                    simclr_aug, sample_num, layers=left)
+        _feats_dict = _get_features(P, model, loader, P.dataset == 'imagenet',
+                                    simclr_aug, sample_num, layers=left, attack=attack, is_ood=is_ood)
 
         for layer, feats in _feats_dict.items():
             feats_dict[layer] = feats  # update value

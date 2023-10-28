@@ -19,10 +19,11 @@ elif P.mode in ['ood', 'ood_pre']:
         from evals import eval_ood_detection
     else:
         from evals.ood_pre import eval_ood_detection
-
-    with torch.no_grad():
-        auroc_dict = eval_ood_detection(P, model, test_loader, ood_test_loader, P.ood_score,
-                                        train_loader=train_loader, simclr_aug=simclr_aug)
+    
+    for param in model.parameters():
+            param.requires_grad = True
+    auroc_dict = eval_ood_detection(P, model, test_loader, ood_test_loader, P.ood_score,
+                                    train_loader=train_loader, simclr_aug=simclr_aug)
         # {'one_class_1': {'CSI': 0.728107},
         #  'one_class_2': {'CSI': 0.9557279999999999},
         #  'one_class_3': {'CSI': 0.9823710000000001},

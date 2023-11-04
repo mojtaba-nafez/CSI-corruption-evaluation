@@ -450,6 +450,10 @@ def get_superclass_list(dataset):
         return CIFAR100_SUPERCLASS
     elif dataset == "cifar100-corruption":
         return CIFAR100_CORUPTION_SUPERCLASS
+    elif dataset == "mnist-corruption":
+        return CIFAR10_SUPERCLASS
+    elif dataset == "fmnist-corruption":
+        return CIFAR10_SUPERCLASS
     elif dataset == 'imagenet':
         return IMAGENET_SUPERCLASS
     else:

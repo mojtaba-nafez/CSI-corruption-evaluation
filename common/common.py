@@ -7,7 +7,7 @@ def parse_args(default=False):
     parser = ArgumentParser(description='Pytorch implementation of CSI')
 
     parser.add_argument('--dataset', help='Dataset',
-                        choices=['svhn-10-corruption', 'svhn-10', 'cifar100-corruption', 'svhn', 'cifar10-corruption', 'cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
+                        choices=['fmnist-corruption', 'mnist-corruption',, 'svhn-10-corruption', 'svhn-10', 'cifar100-corruption', 'svhn', 'cifar10-corruption', 'cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
     parser.add_argument('--desired_attack', help='desired_attack',
                         choices=['PGD', 'FGSM'],
                         default="PGD", type=str)
@@ -32,6 +32,32 @@ def parse_args(default=False):
                         default=None, type=int)
     parser.add_argument('--cifar_corruption_data', help='',
                         default="./CIFAR-10-C/defocus_blur.npy", type=str)
+    
+    parser.add_argument('--mnist_corruption_folder', help='',
+                        default="./mnist_c/", type=str)
+    parser.add_argument('--mnist_corruption_type', help='MNIST corruption type',
+                        choices=[
+                            '-',
+                            "brightness",
+                            "canny_edges",
+                            "dotted_line",
+                            "fog",
+                            "glass_blur",
+                            "identity",
+                            "impulse_noise",
+                            "motion_blur",
+                            "rotate",
+                            "scale",
+                            "shear",
+                            "shot_noise",
+                            "spatter",
+                            "stripe",
+                            "translate",
+                            "zigzag"
+                        ],
+                        default="brightness", type=str)
+    
+    
     parser.add_argument('--model', help='Model',
                         choices=['resnet18', 'resnet18_imagenet'], default="resnet18", type=str)
     parser.add_argument('--mode', help='Training mode',

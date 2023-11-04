@@ -45,7 +45,85 @@ from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from PIL import Image
+import shutil
+import torchvision
 
+class MNIST_CORRUPTION(Dataset):
+    def __init__(self, root_dir, corruption_type, transform=None, train=True):
+        self.root_dir = root_dir
+        self.transform = transform
+        self.corruption_type = corruption_type
+        self.train = train
+        
+        indicator = 'train' if train else 'test'
+        folder = os.path.join(self.root_dir, self.corruption_type, f'saved_{indicator}_images')
+        if os.path.exists(folder):
+            shutil.rmtree(folder)
+        os.makedirs(folder)
+        
+        if train:
+            data = np.load(os.path.join(root_dir, corruption_type, 'train_images.npy'))
+            labels = np.load(os.path.join(root_dir, corruption_type, 'train_labels.npy'))
+        else:
+            data = np.load(os.path.join(root_dir, corruption_type, 'test_images.npy'))
+            labels = np.load(os.path.join(root_dir, corruption_type, 'test_labels.npy'))
+            
+        self.labels = labels
+        self.image_paths = []
+
+        for idx, img in enumerate(data):
+            path = os.path.join(folder, f"{idx}.png")
+            self.image_paths.append(path)
+            
+            if not os.path.exists(path):
+                img_pil = torchvision.transforms.ToPILImage()(img)
+                img_pil.save(path)
+                
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+        image_path = self.image_paths[idx]
+        image = Image.open(image_path).convert("RGB") 
+
+        if self.transform:
+            image = self.transform(image)
+
+        label = self.labels[idx]
+        return image, label
+
+
+
+class FMNIST_CORRUPTION(Dataset):
+    def __init__(self, split='test', transform=None):
+        from datasets import load_dataset
+        # Check if split is valid
+        if split not in ['train', 'test']:
+            raise ValueError("Split must be 'train' or 'test'.")
+
+        self.split = split
+        self.transform = transform or transforms.ToTensor()  # Default transform
+
+        # Load the dataset
+        self.data = load_dataset("mweiss/fashion_mnist_corrupted")[self.split]
+        self.images = np.array([np.array(image) for image in self.data['image']])
+        self.labels = np.array(self.data['label'])
+        
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        # Get the image and label
+        image, label = self.images[idx], self.labels[idx]
+
+        # Convert to PIL Image for compatibility with torchvision transforms
+        image = Image.fromarray(image, mode='L')  # 'L' mode means grayscale
+
+        # Apply the transform to the image
+        if self.transform is not None:
+            image = self.transform(image)
+
+        return image, label
 
 def sparse2coarse(targets):
     coarse_labels = np.array(
@@ -197,7 +275,33 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=transform)
         print("train_set shapes: ", train_set[0][0].shape)
         print("test_set shapes: ", test_set[0][0].shape)
+        
+    elif dataset=='mnist-corruption':
+        n_classes = 10
+        transform = transforms.Compose([
+                transforms.Resize(32),
+                transforms.Grayscale(num_output_channels=3),
+                transforms.ToTensor(),
+        ])
+        test_set = MNIST_CORRUPTION(root_dir=P.mnist_corruption_folder, corruption_type=P.mnist_corruption_type, transform=transform, train=False)
+        train_set = datasets.MNIST(DATA_PATH, train=True, download=True, transform=transform)
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
     
+    elif dataset=='fmnist-corruption':
+        
+        n_classes = 10
+        transform = transforms.Compose([
+                transforms.Resize(32),
+                transforms.Grayscale(num_output_channels=3),
+                transforms.ToTensor(),
+        ])
+        
+        test_set = FMNIST_CORRUPTION(split='test', transform=transform)
+        train_set = datasets.FashionMNIST(DATA_PATH, train=True, download=True, transform=transform)
+        
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
     elif dataset == 'svhn-10-corruption':
         image_size = (32, 32, 3)
         def gaussian_noise(image, mean=P.noise_mean, std = P.noise_std, noise_scale = P.noise_scale):

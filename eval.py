@@ -62,3 +62,9 @@ elif P.mode in ['ood', 'ood_pre']:
 
 else:
     raise NotImplementedError()
+
+
+import time
+
+time.sleep(10) 
+wandb.finish()

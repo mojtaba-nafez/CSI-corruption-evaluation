@@ -2,6 +2,14 @@ from common.eval import *
 
 model.eval()
 
+import wandb
+
+# Initialize wandb
+wandb.init(project="Corruption-CSI", config=vars(P))
+
+# Log everything in P (assuming P is a argparse.Namespace object)
+wandb.config.update(vars(P))
+
 if P.mode == 'test_acc':
     from evals import test_classifier
 
@@ -24,17 +32,7 @@ elif P.mode in ['ood', 'ood_pre']:
             param.requires_grad = True
     auroc_dict = eval_ood_detection(P, model, test_loader, ood_test_loader, P.ood_score,
                                     train_loader=train_loader, simclr_aug=simclr_aug)
-        # {'one_class_1': {'CSI': 0.728107},
-        #  'one_class_2': {'CSI': 0.9557279999999999},
-        #  'one_class_3': {'CSI': 0.9823710000000001},
-        #  'one_class_4': {'CSI': 0.945057},
-        #  'one_class_5': {'CSI': 0.9775539999999999},
-        #  'one_class_6': {'CSI': 0.9593869999999998},
-        #  'one_class_7': {'CSI': 0.895971},
-        #  'one_class_8': {'CSI': 0.7812140000000001},
-        #  'one_class_9': {'CSI': 0.812334},
-        #  'one_class_mean': {'CSI': 0.8930803333333334}}
-    # ood_score="CSI"
+
     if P.one_class_idx is not None:
         mean_dict = dict()
         # P.ood_score: ['CSI']
@@ -44,6 +42,7 @@ elif P.mode in ['ood', 'ood_pre']:
                 mean += auroc_dict[ood][ood_score]
             mean_dict[ood_score] = mean / len(auroc_dict.keys())
         auroc_dict['one_class_mean'] = mean_dict
+        wandb.log({"one_class_mean": mean_dict[ood_score]})
 
     bests = []
     for ood in auroc_dict.keys():

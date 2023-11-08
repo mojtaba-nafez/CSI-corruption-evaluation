@@ -250,6 +250,9 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         for i in range(len(anomaly_trainset)):
             anomaly_trainset.targets[i] = 1
         test_set = anomaly_testset
+        print("-----------------")
+        print("Unique labels(ood_test_loader):", get_loader_unique_label(ood_test_loader[ood]))
+
         train_set = anomaly_trainset
     elif dataset == 'fashion-mnist':
         # image_size = (32, 32, 3)

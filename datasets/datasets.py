@@ -246,7 +246,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         anomaly_testset = datasets.ImageFolder('./one_class_test', transform=transform)
         for i in range(len(anomaly_testset)):
             anomaly_testset.targets[i] = 1
-        anomaly_trainset = datasets.ImageFolder('./one_class_test', transform=transform)
+        anomaly_trainset = datasets.ImageFolder('./one_class_train', transform=transform)
         for i in range(len(anomaly_trainset)):
             anomaly_trainset.targets[i] = 1
         test_set = anomaly_testset

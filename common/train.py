@@ -51,6 +51,12 @@ else:
 P.ood_layer = P.ood_layer[0]
 
 ### Initialize dataset ###
+### Initialize dataset ###
+ood_eval = P.mode == 'ood_pre'
+if P.dataset == 'imagenet' and ood_eval:
+    P.batch_size = 1
+    P.test_batch_size = 1
+    
 train_set, test_set, image_size, n_classes = get_dataset(P, dataset=P.dataset, download=True)
 P.image_size = image_size
 P.n_classes = n_classes
@@ -95,6 +101,7 @@ if P.ood_dataset is None:
         P.ood_dataset = ['svhn', 'lsun_resize', 'imagenet_resize', 'lsun_fix', 'imagenet_fix', 'cifar100', 'interp']
     elif P.dataset == 'imagenet':
         P.ood_dataset = ['cub', 'stanford_dogs', 'flowers102']
+
 
 # P.ood_dataset = [P.one_class_idx]
 ood_test_loader = dict()

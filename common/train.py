@@ -116,7 +116,6 @@ for ood in P.ood_dataset:
         ood = f'one_class_{ood}'  # change save name
     else:
         ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, eval=ood_eval, download=True)
-    print("--------------------")
     print("ood_test_set", len(ood_test_set))
     print("OOD dataset name: ", ood)
     ood_test_loader[ood] = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)

@@ -14,7 +14,9 @@ CIFAR10_SUPERCLASS = list(range(10))  # one class
 CIFAR100_CORUPTION_SUPERCLASS = list(range(20))  # one class
 
 IMAGENET_SUPERCLASS = list(range(30))  # one class
+
 IMAGENET30_SUPERCLASS = list(range(2))
+
 CIFAR100_SUPERCLASS = [
     [4, 31, 55, 72, 95],
     [1, 33, 67, 73, 91],

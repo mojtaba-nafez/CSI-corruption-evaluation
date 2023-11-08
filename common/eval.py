@@ -90,7 +90,7 @@ for ood in P.ood_dataset:
     else:
         ood_test_set = get_dataset(P, dataset=ood, test_only=True, image_size=P.image_size, eval=ood_eval, download=True)
     print("ood_test_set", len(ood_test_set))
-
+    print("OOD dataset name: ", ood)
     ood_test_loader[ood] = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
     print("Unique labels(ood_test_loader):", get_loader_unique_label(ood_test_loader[ood]))
 ### Initialize model ###

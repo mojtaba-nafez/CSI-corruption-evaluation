@@ -263,7 +263,9 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
                 unique_labels = []
             return unique_labels
         print("-----------------")
-        print("Unique labels(ood_test_loader):", get_loader_unique_label(ood_test_loader[ood]))
+        dd = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
+
+        print("Unique labels(ood_test_loader):", get_loader_unique_label(dd))
 
         train_set = anomaly_trainset
     elif dataset == 'fashion-mnist':

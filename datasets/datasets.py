@@ -263,7 +263,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
                 unique_labels = []
             return unique_labels
         print("-----------------")
-        dd = DataLoader(ood_test_set, shuffle=False, batch_size=P.test_batch_size, **kwargs)
+        dd = DataLoader(test_set, shuffle=False, batch_size=64)
 
         print("Unique labels(ood_test_loader):", get_loader_unique_label(dd))
 

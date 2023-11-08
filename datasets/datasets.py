@@ -235,6 +235,20 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         test_set = datasets.MNIST(DATA_PATH, train=False, download=download, transform=test_transform)
         print("train_set shapes: ", train_set[0][0].shape)
         print("test_set shapes: ", test_set[0][0].shape)
+    elif P.outlier_dataset == 'imagenet30':
+        n_classes = 2
+        transform = transforms.Compose([
+            transforms.Resize((32, 32)),
+            transforms.ToTensor(),
+        ])
+        anomaly_testset = datasets.ImageFolder('./one_class_test', transform=transform)
+        for i in range(len(anomaly_testset)):
+            anomaly_testset.targets[i] = 1
+        anomaly_trainset = datasets.ImageFolder('./one_class_test', transform=transform)
+        for i in range(len(anomaly_trainset)):
+            anomaly_trainset.targets[i] = 1
+        test_set = anomaly_trainset
+        train_set = anomaly_trainset
     elif dataset == 'fashion-mnist':
         # image_size = (32, 32, 3)
         n_classes = 10

@@ -250,23 +250,6 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         for i in range(len(anomaly_trainset)):
             anomaly_trainset.targets[i] = 1
         test_set = anomaly_testset
-        
-        def get_loader_unique_label(loader):
-            print('here is get_loader_unique_label')
-            try:
-                unique_labels = set()
-                for _, labels in loader:
-                    unique_labels.update(labels.tolist())
-                unique_labels = sorted(list(unique_labels))
-            except:
-                print("can not compute unique loader!")
-                unique_labels = []
-            return unique_labels
-        print("-----------------")
-        dd = DataLoader(test_set, shuffle=False, batch_size=64)
-
-        print("Unique labels(ood_test_loader):", get_loader_unique_label(dd))
-
         train_set = anomaly_trainset
     elif dataset == 'fashion-mnist':
         # image_size = (32, 32, 3)

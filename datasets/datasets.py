@@ -219,7 +219,40 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=test_transform)
         print("train_set shapes: ", train_set[0][0].shape)
         print("test_set shapes: ", test_set[0][0].shape)
-
+    elif dataset == 'mnist':
+        n_classes = 10
+        train_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor(),
+        ])
+        test_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor(),
+        ])
+        train_set = datasets.MNIST(DATA_PATH, train=True, download=download, transform=train_transform)
+        test_set = datasets.MNIST(DATA_PATH, train=False, download=download, transform=test_transform)
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
+    elif dataset == 'fashion-mnist':
+        # image_size = (32, 32, 3)
+        n_classes = 10
+        train_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+        ])
+        test_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor(),
+        ])
+        train_set = datasets.FashionMNIST(DATA_PATH, train=True, download=download, transform=train_transform)
+        test_set = datasets.FashionMNIST(DATA_PATH, train=False, download=download, transform=test_transform)
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
     elif dataset == 'cifar100':
         image_size = (32, 32, 3)
         n_classes = 100
@@ -340,7 +373,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
 
 
 def get_superclass_list(dataset):
-    if dataset == 'cifar10' or dataset=='cifar10-corruption' or dataset=='svhn' or dataset=='svhn-10-corruption' or dataset=='svhn-10':
+    if dataset == 'cifar10' or dataset=='cifar10-corruption' or dataset=='svhn' or dataset=='svhn-10-corruption' or dataset=='svhn-10' or dataset=='fashion-mnist' or dataset=='mnist':
         return CIFAR10_SUPERCLASS
     elif dataset == 'cifar100':
         return CIFAR100_SUPERCLASS

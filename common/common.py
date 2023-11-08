@@ -57,6 +57,10 @@ def parse_args(default=False):
                         ],
                         default="brightness", type=str)
     
+    parser.add_argument('--svhn_corruption_folder', help='',
+                        default="./SVHN-C/", type=str)
+    
+    parser.add_argument('--svhn_corruption_type', help='', type=str, default="Contrast", choices=['Contrast', 'Gaussian Blur','Gaussian Noise','Glass Blur','Impulse Noise','Shot Noise','Speckle Noise'])
     
     parser.add_argument('--model', help='Model',
                         choices=['resnet18', 'resnet18_imagenet'], default="resnet18", type=str)

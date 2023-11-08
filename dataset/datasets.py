@@ -48,6 +48,41 @@ from PIL import Image
 import shutil
 import torchvision
 
+
+SVHN_CORRUPTION_TYPES = [
+    'Contrast',
+    'Gaussian Blur',
+    'Gaussian Noise',
+    'Glass Blur',
+    'Impulse Noise',
+    'Shot Noise',
+    'Speckle Noise',
+]
+
+class SVHN_CORRUPTION(torch.utils.data.Dataset):
+    def __init__(self, transform=None, svhn_corruption_label = './SVHN-C/labels.npy', svhn_corruption_data = './SVHN-C/Contrast.npy'):
+        self.labels_10 = np.load(svhn_corruption_label)
+        self.svhn_corruption_data = svhn_corruption_data
+        self.data = np.load(svhn_corruption_data)
+        self.data = np.transpose(self.data, (0, 2, 3, 1))
+        self.transform = transform
+        
+    def __getitem__(self, index):
+        x = self.data[index]
+        label = self.labels_10[index]
+
+        if self.transform:
+            x = Image.fromarray((x * 255).astype(np.uint8))
+            x = self.transform(x)    
+            
+        return x, label
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __repr__(self):
+        return f"{self.__class__.__name__}(corruption_type={self.svhn_corruption_data})"
+    
 class MNIST_CORRUPTION(Dataset):
     def __init__(self, root_dir, corruption_type, transform=None, train=True):
         self.root_dir = root_dir
@@ -320,7 +355,10 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         ])
 
         train_set = datasets.SVHN(DATA_PATH, split='train', download=download, transform=train_transform)
-        test_set = datasets.SVHN(DATA_PATH, split='test', download=download, transform=test_transform)
+        test_set =  SVHN_CORRUPTION(svhn_corruption_data=os.path.join(P.svhn_corruption_folder, f'{P.svhn_corruption_type}.npy'),
+                                    svhn_corruption_label=os.path.join(P.svhn_corruption_folder, 'labels.npy'), 
+                                    transform=train_transform)
+        
         print("train_set shapes: ", train_set[0][0].shape)
         print("test_set shapes: ", test_set[0][0].shape)
 

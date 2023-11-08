@@ -247,7 +247,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         anomaly_trainset = datasets.ImageFolder('./one_class_test', transform=transform)
         for i in range(len(anomaly_trainset)):
             anomaly_trainset.targets[i] = 1
-        test_set = anomaly_trainset
+        test_set = anomaly_testset
         train_set = anomaly_trainset
     elif dataset == 'fashion-mnist':
         # image_size = (32, 32, 3)

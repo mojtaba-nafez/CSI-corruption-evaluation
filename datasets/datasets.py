@@ -4,8 +4,6 @@ import numpy as np
 import torch
 from torch.utils.data.dataset import Subset
 from torchvision import datasets, transforms
-from torch.utils.data import Dataset, DataLoader
-from PIL import Image
 
 from utils.utils import set_random_seed
 
@@ -63,24 +61,6 @@ def sparse2coarse(targets):
          15, 13, 16, 19, 2, 4, 6, 19, 5, 5, 8,
          19, 18, 1, 2, 15, 6, 0, 17, 8, 14, 13,])
     return coarse_labels[targets]
-
-
-class ImageNet30_Dataset(Dataset):
-    def __init__(self, image_path, labels, transform=None):
-        self.transform = transform
-        self.image_files = image_path
-        self.labels = labels
-        
-    def __getitem__(self, index):
-        image_file = self.image_files[index]
-        image = Image.open(image_file)
-        image = image.convert('RGB')
-        if self.transform is not None:
-            image = self.transform(image)
-        return image, self.labels[index]
-
-    def __len__(self):
-        return len(self.image_files)
 
 class CIFAR_CORRUCPION(Dataset):
     def __init__(self, transform=None, normal_idx = [0], cifar_corruption_label = 'CIFAR-10-C/labels.npy', cifar_corruption_data = './CIFAR-10-C/defocus_blur.npy'):
@@ -263,9 +243,14 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
             transforms.Resize((32, 32)),
             transforms.ToTensor(),
         ])
-        image_path = glob('./one_class_test/*/*/*')
-        test_set = ImageNet30_Dataset(image_path=image_path, labels=[1]*len(image_path), transform=transform)
-        train_set = test_set
+        anomaly_testset = datasets.ImageFolder('./one_class_test', transform=transform)
+        for i in range(len(anomaly_testset)):
+            anomaly_testset.targets[i] = 1
+        anomaly_trainset = datasets.ImageFolder('./one_class_train', transform=transform)
+        for i in range(len(anomaly_trainset)):
+            anomaly_trainset.targets[i] = 1
+        test_set = anomaly_testset
+        train_set = anomaly_trainset
     elif dataset == 'fashion-mnist':
         # image_size = (32, 32, 3)
         n_classes = 10

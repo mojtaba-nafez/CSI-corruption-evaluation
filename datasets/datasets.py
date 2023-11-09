@@ -240,7 +240,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
     elif dataset == 'imagenet30':
         n_classes = 2
         transform = transforms.Compose([
-            transforms.Resize((32, 32)),
+            transforms.Resize((224, 224)),
             transforms.ToTensor(),
         ])
         anomaly_testset = datasets.ImageFolder('./one_class_test', transform=transform)

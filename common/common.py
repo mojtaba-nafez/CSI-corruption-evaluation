@@ -57,7 +57,7 @@ def parse_args(default=False):
                         ],
                         default="brightness", type=str)
     
-     parser.add_argument('--emnist_corruption_folder', help='',
+    parser.add_argument('--emnist_corruption_folder', help='',
                         default="./emnist-c/", type=str)
     
     

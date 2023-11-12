@@ -7,7 +7,7 @@ def parse_args(default=False):
     parser = ArgumentParser(description='Pytorch implementation of CSI')
 
     parser.add_argument('--dataset', help='Dataset',
-                        choices=['fmnist-corruption', 'mnist-corruption','svhn-10-corruption', 'svhn-10', 'cifar100-corruption', 'svhn', 'cifar10-corruption', 'cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
+                        choices=['emnist-corruption', 'emnist', 'fmnist-corruption', 'mnist-corruption','svhn-10-corruption', 'svhn-10', 'cifar100-corruption', 'svhn', 'cifar10-corruption', 'cifar10', 'cifar100', 'imagenet'], default="cifar10", type=str)
     parser.add_argument('--desired_attack', help='desired_attack',
                         choices=['PGD', 'FGSM'],
                         default="PGD", type=str)
@@ -56,6 +56,26 @@ def parse_args(default=False):
                             "zigzag"
                         ],
                         default="brightness", type=str)
+    
+     parser.add_argument('--emnist_corruption_folder', help='',
+                        default="./emnist-c/", type=str)
+    
+    
+    parser.add_argument('--emnist_corruption_type', help='MNIST corruption type',
+                        choices=[
+                            'shot_noise',
+                            'impulse_noise',
+                            'glass_blur',
+                            'motion_blur',
+                            'shear',
+                            'scale',
+                            'rotate',
+                            'brightness',
+                            'contrast',
+                            'saturate',
+                            'inverse'
+                        ],
+                        default="shot_noise", type=str)
     
     parser.add_argument('--svhn_corruption_folder', help='',
                         default="./SVHN-C/", type=str)

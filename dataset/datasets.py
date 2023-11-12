@@ -12,6 +12,7 @@ IMAGENET_PATH = './data/ImageNet'
 
 CIFAR10_SUPERCLASS = list(range(10))  # one class
 CIFAR100_CORUPTION_SUPERCLASS = list(range(20))  # one class
+EMNIST_SUPERCLASS = list(range(26))  # one class
 
 IMAGENET_SUPERCLASS = list(range(30))  # one class
 
@@ -48,6 +49,49 @@ from PIL import Image
 import shutil
 import torchvision
 
+
+EMNIST_CORRUPTION_TYPES = [
+    'shot_noise',
+    'impulse_noise',
+    'glass_blur',
+    'motion_blur',
+    'shear',
+    'scale',
+    'rotate',
+    'brightness',
+    'contrast',
+    'saturate',
+    'inverse'
+]
+
+class EMNISTCorruptionDataset(torch.utils.data.Dataset):
+    def __init__(self, corruption_type, root_dir='./', transform=None):
+        """
+        Args:
+            root_dir (string): Directory with all the corrupted dataset .npy files.
+            corruption_type (string): Type of corruption applied to the dataset.
+                                      It is used to identify the files.
+            transform (callable, optional): Optional transform to be applied
+                                            on a sample.
+        """
+        self.transform = transform
+        self.images = np.load(os.path.join(root_dir, f'{corruption_type}_images.npy'))
+        self.labels = np.load(os.path.join(root_dir, f'{corruption_type}_labels.npy'))
+        self.images = self.images.transpose((0, 2, 1))
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        label = self.labels[idx]
+
+        image = Image.fromarray(image, mode='L')  # 'L' mode means grayscale
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label - 1
 
 SVHN_CORRUPTION_TYPES = [
     'Contrast',
@@ -362,6 +406,61 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         print("train_set shapes: ", train_set[0][0].shape)
         print("test_set shapes: ", test_set[0][0].shape)
 
+    elif dataset == 'emnist':
+        
+        transpose_transform = transforms.Lambda(lambda img: img.transpose(1, 2))
+
+        n_classes = 26
+        train_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor(),
+            transpose_transform,
+        ])
+        test_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor(),
+            transpose_transform,
+        ])
+
+        train_set = datasets.EMNIST(DATA_PATH, split='letters', train=True, download=download, transform=train_transform)    
+        test_set = datasets.EMNIST(DATA_PATH,  split='letters', train=False, download=download, transform=test_transform)
+        
+        train_set.targets = train_set.targets - 1
+        test_set.targets = test_set.targets - 1
+        
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
+    
+    elif dataset == 'emnist-corruption':
+        # image_size = (32, 32, 1)
+        n_classes = 26
+        
+        transpose_transform = transforms.Lambda(lambda img: img.transpose(1, 2))
+
+
+        train_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor(),
+            transpose_transform,
+        ])
+        test_transform = transforms.Compose([
+            transforms.Resize((image_size[0], image_size[1])),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor(),
+        ])
+       
+        train_set = datasets.EMNIST(DATA_PATH, split='letters', train=True, download=download, transform=train_transform)
+            
+        test_set = EMNISTCorruptionDataset(root_dir=P.emnist_corruption_folder, corruption_type=P.emnist_corruption_type, transform=test_transform)
+        
+        train_set.targets = train_set.targets - 1
+        
+        print("train_set shapes: ", train_set[0][0].shape)
+        print("test_set shapes: ", test_set[0][0].shape)
+        
     elif dataset == 'cifar100':
         image_size = (32, 32, 3)
         n_classes = 100
@@ -484,6 +583,8 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
 def get_superclass_list(dataset):
     if dataset == 'cifar10' or dataset=='cifar10-corruption' or dataset=='svhn' or dataset=='svhn-10-corruption' or dataset=='svhn-10':
         return CIFAR10_SUPERCLASS
+    elif dataset == 'emnist' or dataset=='emnist-corruption':
+        return EMNIST_SUPERCLASS
     elif dataset == 'cifar100':
         return CIFAR100_SUPERCLASS
     elif dataset == "cifar100-corruption":

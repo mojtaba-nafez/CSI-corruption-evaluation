@@ -408,6 +408,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
 
     elif dataset == 'emnist':
         
+        image_size = (32, 32, 3)
         transpose_transform = transforms.Lambda(lambda img: img.transpose(1, 2))
 
         n_classes = 26
@@ -434,7 +435,7 @@ def get_dataset(P, dataset, test_only=False, image_size=None, download=False, ev
         print("test_set shapes: ", test_set[0][0].shape)
     
     elif dataset == 'emnist-corruption':
-        # image_size = (32, 32, 1)
+        image_size = (32, 32, 3)
         n_classes = 26
         
         transpose_transform = transforms.Lambda(lambda img: img.transpose(1, 2))

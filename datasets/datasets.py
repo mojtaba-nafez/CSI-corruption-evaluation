@@ -65,18 +65,18 @@ def sparse2coarse(targets):
 class CIFAR_CORRUCPION(Dataset):
     def __init__(self, transform=None, normal_idx = [0], cifar_corruption_label = 'CIFAR-10-C/labels.npy', cifar_corruption_data = './CIFAR-10-C/defocus_blur.npy'):
         self.labels_10 = np.load(cifar_corruption_label)
-        self.labels_10 = self.labels_10[:10000]
+        self.labels_10 = self.labels_10[40000:50000]
         if cifar_corruption_label == 'CIFAR-100-C/labels.npy':
             self.labels_10 = sparse2coarse(self.labels_10)
         self.data = np.load(cifar_corruption_data)
-        self.data = self.data[:10000]
+        self.data = self.data[40000:50000]
         self.transform = transform
        
     def __getitem__(self, index):
         x = self.data[index]
         y = self.labels_10[index]
         if self.transform:
-            x = Image.fromarray((x * 255).astype(np.uint8))
+            x = Image.fromarray(x.astype(np.uint8))
             x = self.transform(x)    
         return x, y
     

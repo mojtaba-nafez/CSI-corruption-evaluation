@@ -35,7 +35,7 @@ def get_simclr_augmentation(P, image_size):
 def get_shift_module(P, eval=False):
     if P.shift_trans_type == 'rotation':
         shift_transform = TL.Rotation()
-        K_shift = 4
+        K_shift = 2
     elif P.shift_trans_type == 'cutperm':
         shift_transform = TL.CutPerm()
         K_shift = 4

@@ -161,7 +161,7 @@ class DifferentiableScoreModel(nn.Module):
 
 
 def eval_ood_detection(P, model, id_loader, ood_loaders, ood_scores, train_loader=None, simclr_aug=None):
-    P.K_shift = 1
+    # P.K_shift = 1
     P.PGD_constant = 2.5
     P.alpha = (P.PGD_constant * P.eps) / P.steps
     
